@@ -1,97 +1,31 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter/services.dart';
-import 'package:ussd_advanced/ussd_advanced.dart';
+import 'package:sim_data/sim_data.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late TextEditingController _controller;
-  String? _response;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Ussd Plugin example'),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            // text input
-            TextField(
-              controller: _controller,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Ussd code'),
-            ),
-
-            // dispaly responce if any
-            if (_response != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(_response!),
-              ),
-
-            // buttons
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    UssdAdvanced.sendUssd(code: _controller.text, subscriptionId: 1);
-                  },
-                  child: const Text('norma\nrequest'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    String? _res = await UssdAdvanced.sendAdvancedUssd(code: _controller.text, subscriptionId: 1);
-                    setState(() {
-                      _response = _res;
-                    });
-                  },
-                  child: const Text('single session\nrequest'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    String? _res = await UssdAdvanced.multisessionUssd(code: _controller.text, subscriptionId: 1);
-                    setState(() {
-                      _response = _res;
-                    });
-                    String? _res2 = await UssdAdvanced.sendMessage('0');
-                    setState(() {
-                      _response = _res2;
-                    });
-                    await UssdAdvanced.cancelSession();
-                  },
-                  child: const Text('multi session\nrequest'),
-                ),
-              ],
-            )
-          ],
+        appBar: AppBar(title: const Text('SIM Card Info')),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () async {
+              SimData simData = await SimDataPlugin.getSimData();
+              print('Carrier Name: ${simData.cards[0].carrierName}');
+              print('Country Code: ${simData.cards[0].countryCode}');
+              print('SIM Serial: ${simData.cards[0].serialNumber}');
+              print('SIM mcc: ${simData.cards[0].mcc}');
+              print('SIM mnc: ${simData.cards[0].mnc}');
+              print('SIM service provider: ${simData.cards[0].carrierName}');
+              print('SIM service subscription: ${simData.cards[0].subscriptionId}');
+              print('SIM service subscription: ${simData.cards[0].serialNumber}');
+            },
+            child: const Text('Get SIM Card Info'),
+          ),
         ),
       ),
     );
